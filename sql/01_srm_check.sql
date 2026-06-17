@@ -3,8 +3,8 @@
 -- Run this BEFORE any conversion analysis. If the 50/50 split didn't hold,
 -- randomization is broken and every downstream number is suspect — stop and fix.
 -- Sanity check: observed_share for each arm ≈ 0.50 (chi-square p >= 0.001 in analysis.ipynb)
--- Postgres port: identical; replace the table with ecom.experiment_assignments
---                and add  WHERE experiment_id = <your id>.
+-- Postgres port: identical against a warehouse experiment_assignments table;
+--                keep the WHERE experiment_id filter.
 -- ============================================================================
 with counts as (
     select

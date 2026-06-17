@@ -60,7 +60,7 @@ def bonferroni_alpha(alpha: float, n_tests: int) -> float:
 
 def required_sample_per_arm(baseline: float, mde_abs: float, alpha: float = 0.05,
                             power: float = 0.80) -> int:
-    """Two-proportion sample size per arm. Mirrors the closed form in the brief."""
+    """Two-proportion sample size per arm (standard closed form)."""
     z_a = stats.norm.ppf(1 - alpha / 2)
     z_b = stats.norm.ppf(power)
     p1, p2 = baseline, baseline + mde_abs

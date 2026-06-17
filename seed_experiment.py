@@ -1,13 +1,12 @@
 """
 Seed a realistic A/B experiment: PDP Strikethrough Pricing vs Clean Pricing.
 
-WHY SYNTHETIC + LOCAL: in the graded task you seed assignments into
-`ecom.experiment_assignments` (within your assigned experiment-id block) and read
-outcomes from `ecom.orders`, all on the shared Postgres. This sample instead
-generates a deterministic synthetic dataset into a local DuckDB file so the whole
-repo runs end-to-end on any machine with no warehouse credentials — clone, run,
-green. The SQL in sql/ is standard and ports directly to the ecom Postgres schema
-(equivalents noted in each file).
+WHY SYNTHETIC + LOCAL: in a production deployment you'd seed assignments into a
+warehouse `experiment_assignments` table and read outcomes from `orders`. This repo
+instead generates a deterministic synthetic dataset into a local DuckDB file so the
+whole analysis runs end-to-end on any machine with no warehouse credentials — clone,
+run, green. The SQL in sql/ is standard and ports directly to a Postgres e-commerce
+schema (equivalents noted at the top of each file).
 
 Determinism: numpy seed is fixed AND variant assignment is a SHA256 hash of
 (experiment_id, customer_id) — exactly the production pattern. Re-running produces
@@ -35,7 +34,7 @@ DATA.mkdir(exist_ok=True)
 
 # ---------------------------------------------------------------- CONFIG
 SEED = 20260617
-EXPERIMENT_ID = 201                       # numeric, in a student id-block (102–106 are taken)
+EXPERIMENT_ID = 201                       # numeric id
 EXPERIMENT_NAME = "PDP Strikethrough vs Clean Pricing"
 VARIANTS = {0: ("control", True), 1: ("treatment", False)}   # variant_id -> (name, is_control)
 N_CUSTOMERS = 50_000                      # 28-day run @ ~1,800 eligible PDP-viewing customers/day
@@ -44,7 +43,7 @@ END = pd.Timestamp("2026-05-29", tz="UTC")  # 28-day cap (novelty decay guardrai
 ATTRIBUTION_DAYS = 7
 
 # Segment mix and TRUE effects (the realism: strikethrough helps deal-seekers in
-# apparel/beauty, is flat-to-negative on premium electronics — the brief's own note).
+# apparel/beauty, is flat-to-negative on premium electronics — a documented pattern).
 SEGMENTS = {
     #                 share  control_cr  treatment_relative_lift
     "apparel_beauty": (0.50, 0.045,      +0.16),
