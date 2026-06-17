@@ -5,43 +5,47 @@
 **Re:** `exp_201_pdp_strikethrough` — PDP strikethrough pricing read-out
 **Date:** 2026-05-30
 
-## Recommendation: **Ship to apparel/beauty & home. Hold electronics on clean pricing. Watch refunds in rollout.**
+## Recommendation: **Hold the global ship. Run a monitored, apparel/beauty-only confirmatory rollout.**
 
-Strikethrough pricing wins where deal-framing helps and quietly hurts where it doesn't. Treating it as one global on/off switch would leave money on the table in fashion *and* erode the premium electronics line. Ship it where it works.
+The top-line lift is real. But it breaches a guardrail we committed to before the test, and no single category clears the bar on its own — so the disciplined call is not "ship it everywhere," and not "kill it." It's a narrow, instrumented rollout that banks the upside where the evidence concentrates while we confirm the cost.
 
 ## Findings
 
-**1. Statistically significant — and clean.**
-Customer-level conversion 3.82% → 4.27%, a **+11.8% relative lift** (Z = 2.56, two-tailed p = 0.011). 95% CI on the lift: **+2.8% to +20.9%** — excludes zero. SRM passed (50.1/49.9, χ² p = 0.67), exposure balanced at ~92% both arms, no peeking. The Z sits in the believable 2–3 band, not the 70s — the result is real, not a seeding artefact.
+**1. The primary metric won — clearly.**
+Customer-level conversion 3.82% → 4.27%, a **+11.8% relative lift** (Z = 2.56, two-tailed **p = 0.010**, 95% CI **+2.8% to +20.9%** — excludes zero). Enrollment ran 28 days (2026-05-01 → 05-29); a customer is credited a conversion if they place ≥1 paid order within **7 days of their own assignment**. SRM passed (50.1/49.9, χ² p = 0.67); exposure balanced at ~92% both arms; no peeking. The Z sits in the believable 2–3 band — a real effect, not a seeding artefact.
 
-**2. Practically significant — but concentrated.** The headline hides strong heterogeneity (after Bonferroni across 9 segment tests, α = 0.0056):
-- **Apparel/beauty: +14%** — the engine of the result, significant.
-- **Home: +17%** — also positive.
-- **Electronics: −3%** — flat-to-negative. The brand team's worry is correct *for premium*: discount framing cheapens high-consideration goods.
-This is **heterogeneity, not Simpson's paradox** (the aggregate isn't reversing the segments — electronics is simply a genuine exception).
+**2. The effect is directional by category, but not proven per-segment.**
+Sorted by point estimate: home +17% (p = 0.071), apparel/beauty +14% (p = 0.019), electronics −3% (p = 0.80). The lift concentrates in apparel/beauty and reverses on electronics — the brand team's worry about premium is real. **But with a Bonferroni correction across the 9 segment tests (α ≈ 0.006), none of these survive** — the experiment is powered for the overall effect, not for slicing. This is a genuine heterogeneous effect (the aggregate agrees with most segments; it isn't a Simpson's averaging artefact), but at the segment level it is a *signal to confirm*, not a result to bank. That distinction is why the rollout below is confirmatory.
 
-**3. Guardrails — a real quality-of-revenue tradeoff, quantified.**
-- **Refund rate: 1.04% → 2.06%** (≈ doubles) — deal-seekers return more.
-- **30-day repeat: 22.6% → 19.0%** (−3.5pp) — a brand-erosion signal worth respecting.
-- **AOV: ₹2,927 → ₹2,693** — smaller baskets under discount framing.
-- **Payment-failure rate: ~flat** (1.6% → 1.7%) — sanity OK.
-Net: the conversion lift is partly offset by lower repeat and higher refunds. It's still positive in apparel/beauty, but it is *not* free conversion — which is exactly why we don't ship it to electronics.
+**3. Two guardrails breach the pre-registered tolerance.**
+- **Refund rate: 1.04% → 2.06%** (+1.0pp, ≈ doubles) — deal-seekers return more.
+- **30-day repeat: 22.6% → 19.0%** (−3.5pp) — a brand-erosion signal.
+- AOV ₹2,927 → ₹2,693 (smaller baskets); payment-failure ~flat (sanity OK).
 
-**4. Operational risk: low.** Front-end price-block change behind one feature flag; instant rollback. No payment-path or latency risk (failure rate flat).
+**This breaches the pre-registered refund gate** (committed tolerance +≤0.3pp; observed +1.0pp) and the repeat gate (−≤1pp; observed −3.5pp). I am **not** weakening the rule after the fact — the rule says a breach blocks an unconditional ship, so we don't ship unconditionally. The refund lift rides the same deal-seeker traffic that drives the conversion win, so the rollout gates **each segment on its own refund trajectory** rather than the blended number. The lift is real, but it is *not* free conversion — which is exactly why this ends in a narrow, monitored rollout instead of a global on/off.
+
+**4. The money, roughly** (directional sizing, not a booked forecast: incremental converters × AOV × ~30% contribution margin, netted against the added refund cost):
+- **Apparel/beauty (+14%):** the lift clears the refund drag comfortably — this is where the incremental margin lives and what justifies a rollout at all.
+- **Home (+17%, held):** positive point estimate but its CI crosses zero — not enough signal to commit; revisit with more data.
+- **Electronics (−3%, held):** shipping here would cost money twice — no conversion gain, plus higher refunds and a dented premium repeat-rate. Holding it protects value; it isn't timidity.
+- **Cost of the wrong global call:** "ship everywhere" trades away electronics margin to chase an apparel win; "kill everywhere" leaves the apparel lift on the table. The per-segment call captures the upside and avoids the drag — that gap *is* this memo's value.
+
+**5. Operational risk: low.** A front-end price-block change behind one feature flag; instant rollback. No payment-path or latency risk (failure rate flat).
 
 ## Rollout plan
-- **Week 1:** ship to **apparel/beauty** at 100% (the strongest, clearly-significant segment).
-- **Week 2:** extend to **home**; monitor refund rate daily — **pause any segment whose refund rate crosses 3.0% sustained 3+ days**.
-- **Week 3+:** keep **electronics on clean pricing**; revisit only with a premium-specific creative (e.g. "member price" framing) as a *new* experiment.
-- **Hold indefinitely:** global strikethrough — there is no one-size setting.
+- **Week 1:** apparel/beauty at 100%, as a **confirmatory** rollout — it both captures the lift and re-tests it on fresh traffic. Instrument the refund kill-switch from day one.
+- **Monitoring / rollback trigger:** **pause apparel/beauty if its refund rate exceeds 3.0% sustained 3+ days.** Watch 30-day repeat weekly.
+- **Hold:** home (underpowered — collect more data before committing) and electronics (clean pricing stays).
+- **No global ship** until the apparel/beauty confirmatory read clears both conversion and the refund/repeat guardrails at 30–60 days.
 
 ## Limitations
-- **Novelty effect:** 28-day window may overstate the long-run lift by ~10–20%; schedule a 90-day post-launch read.
-- **Cross-device misattribution:** ~5–10% of users may have seen mixed variants (anonymous→login). Likely dilutes (conservative) the measured effect.
-- **Repeat-rate read is early:** the 30-day repeat signal is directional at this window; confirm at 60–90 days before treating brand-erosion as settled.
-- **Synthetic dataset:** this sample runs on seeded data (see README); on production ecom you'd re-confirm the baseline and the category split, which can shift the segment verdicts.
+- **Novelty effect:** a discount frame can inflate *early* lift; we cap enrollment at 28 days to limit it and schedule a 90-day re-read to see what survives.
+- **Underpowered segments:** the test is sized for the overall effect; segment verdicts are directional, which is precisely why the rollout is confirmatory rather than a per-segment commit.
+- **Repeat-rate read is early** at 30 days — confirm at 60–90 before treating brand-erosion as settled.
+- **Cross-device:** ~5–10% of users may see mixed variants (anonymous→login); likely dilutes the measured effect (conservative).
+- **Synthetic dataset:** runs on seeded data (see README); production would re-confirm the baseline and category split, which can move the per-segment calls.
 
 ## Follow-up
-- 90-day post-launch read on apparel/beauty: did the conversion lift survive novelty, and did repeat-rate recover?
+- 30/60/90-day read on the apparel/beauty rollout: did the lift survive novelty, and did refunds and repeat-rate hold within trigger?
 - Premium-electronics creative test ("member price" vs strikethrough vs clean) as exp 202.
-- Refund-rate-by-discounted-SKU dashboard as an ongoing guardrail.
+- Refund-rate-by-discounted-SKU dashboard as a standing guardrail.

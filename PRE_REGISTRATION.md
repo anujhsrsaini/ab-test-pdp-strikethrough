@@ -41,6 +41,7 @@ more and repeat less — so guardrails can veto a primary-metric win.
 ## Decision rule (committed)
 - **Ship** if: primary Z > 1.96 (p < 0.05) **AND** no guardrail regression beyond
   tolerance (refund rate +≤0.3pp, 30-day repeat −≤1pp).
+  *(This gate is written for a single global ship. The actual result breaches it on refunds; the read-out holds the rule and recommends a narrow monitored rollout instead of overriding it — see the decision memo. The rule stands as committed.)*
 - **Stage / partial ship** if: primary is significant but a guardrail or a segment
   fails — ship only the segments that clear both bars.
 - **Hold** if: primary not significant, or a guardrail breaches tolerance broadly.
@@ -51,7 +52,10 @@ significance** (peeking inflates Type-I error to ~10%). Cap at 28 days to limit
 novelty-effect inflation. Analysis script written and reviewed before data landed.
 
 ## Noted but not implemented (honest scope)
-- **CUPED** variance reduction (pre-period conversion as covariate) would cut required
-  N ~25%; we have the covariate (`prior_period_orders`) but did not apply it here.
+- **CUPED** variance reduction — *considered and deliberately not applied.* With a ~4%
+  binary primary metric and a pre-period covariate (`prior_period_orders`) that is
+  near-uncorrelated with conversion, CUPED would shrink the SE by a negligible amount
+  here; it earns its keep on continuous metrics (revenue) or higher-rate outcomes.
+  Applying it would be theatre, so we name the tool and the reason rather than dress it up.
 - Cross-device identity stitching (~5–10% of users may see mixed variants) — accepted,
   reported in limitations.
