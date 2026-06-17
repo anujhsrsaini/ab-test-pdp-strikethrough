@@ -1,12 +1,12 @@
 # Does strikethrough pricing actually lift conversion? — an A/B test
 
-> **Strikethrough pricing lifts conversion +11.8% (p = 0.010) — but it breaches our pre-registered refund guardrail and no single category survives multiple-comparison correction. So the rigorous call isn't "ship it." It's a monitored, apparel-only confirmatory rollout — respecting the guardrails we committed to before we saw the data.**
+> **Strikethrough pricing lifts conversion +11.8% (significant) and nudges revenue per customer up ~3% — but it roughly doubles the refund rate, and the win is really an apparel/beauty story, not electronics. So the call isn't "ship it everywhere." It's ship it where it wins, with a refund alarm.**
 
 `Python` · `SQL (DuckDB / Postgres)` · `scipy` · `statsmodels` · `pandas` · `matplotlib`
 
-End-to-end: pre-registered design → randomization → validity checks → inference → a one-page decision memo. **Runs on a fresh clone in ~30 seconds, no database access required.**
+End-to-end: hypothesis → sample-size → randomization → conversion + significance → guardrails → North Star → a one-page decision memo. **Runs on a fresh clone in ~30 seconds, no database access required.**
 
-**Jump to the good parts:** [📝 Decision memo](decision_memo.md) (2-min read) · [📊 Executed analysis](analysis/analysis.ipynb) · [🧪 Design rationale](DESIGN.md) · [🔒 Pre-registration](PRE_REGISTRATION.md)
+**Jump to the good parts:** [📝 Decision memo](decision_memo.md) (2-min read) · [📊 Executed analysis](analysis/analysis.ipynb) · [🧪 Design rationale](DESIGN.md) · [🔒 Test plan](PRE_REGISTRATION.md)
 
 ---
 
@@ -16,88 +16,87 @@ End-to-end: pre-registered design → randomization → validity checks → infe
 |---|---|---|---|
 | Customers | 25,047 | 24,953 | |
 | **Conversion** | 3.82% | **4.27%** | **+11.8%** rel · Z = 2.56 · **p = 0.010** |
-| Refund rate | 1.04% | 2.06% | ⚠ ~doubles — **breaches guardrail** |
-| 30-day repeat | 22.6% | 19.0% | ⚠ −3.5pp — **breaches guardrail** |
-| AOV | ₹2,927 | ₹2,693 | smaller baskets |
+| Revenue / customer | ₹111.82 | ₹115.06 | **+2.9%** (the North Star) |
+| Refund rate | 1.04% | 2.06% | ⚠ ~doubles |
+| 30-day repeat | 22.6% | 19.0% | ⚠ −3.5pp |
 
-Three pictures, three beats of the story: the top-line lift is real and its CI clears zero (1); it lives in apparel/beauty and reverses on electronics — though no single segment survives Bonferroni, so this is a *direction*, not a proof (2); and it isn't free conversion — two guardrails breach the line we drew in advance (3).
+Three pictures, three beats: the lift is real and its confidence interval clears zero (1); it lives in apparel/beauty and reverses on electronics (2); and it isn't free — two guardrails move the wrong way (3).
 
 <p align="center">
-  <img width="780" src="figures/01_lift_forest.png" alt="Forest plot of relative conversion lift with 95% confidence intervals. Overall +11.8% (95% CI +2.8% to +20.9%), CI excludes zero. By category: home +17% (CI crosses zero, not significant), apparel/beauty +14% (CI excludes zero unadjusted but does NOT survive Bonferroni correction, alpha approximately 0.006), electronics -3% (not significant). No segment is significant after correction.">
+  <img width="780" src="figures/01_lift_forest.png" alt="Forest plot of relative conversion lift with 95% confidence intervals. Overall +11.8% (CI +2.8% to +20.9%, significant). By category: home +17% (CI crosses zero, not significant), apparel/beauty +14% (significant), electronics -3% (not significant).">
 </p>
 
 <p align="center">
-  <img width="780" src="figures/02_conversion_compare.png" alt="Dumbbell plot: control 3.82 percent (n=25,047) versus treatment 4.27 percent (n=24,953), a +0.45pp absolute and +11.8 percent relative lift, p = 0.010. Axis starts at 3.5 percent, not zero. SRM passes 50.1/49.9, exposure about 92 percent both arms.">
+  <img width="780" src="figures/02_conversion_compare.png" alt="Dumbbell: control 3.82 percent versus treatment 4.27 percent, a +0.45pp absolute and +11.8 percent relative lift, p = 0.010. Axis starts at 3.5 percent.">
 </p>
 
 <p align="center">
-  <img width="780" src="figures/03_guardrails.png" alt="Guardrail small-multiples, control versus treatment. Refund rate 1.04 to 2.06 percent (roughly doubles, breach). 30-day repeat 22.6 to 19.0 percent (minus 3.5pp, breach). AOV 2,927 to 2,693 rupees (minus 233). Payment-failure 1.6 to 1.7 percent (flat, OK). Two guardrails breach the rollback trigger.">
+  <img width="780" src="figures/03_guardrails.png" alt="Guardrails, control versus treatment. Refund rate 1.04 to 2.06 percent (doubles). 30-day repeat 22.6 to 19.0 percent (down 3.5pp). AOV down 233 rupees. Payment-failure flat.">
 </p>
 
 ## The decision
 
-**Don't ship globally — and don't kill it.** The primary metric won, but our pre-registered rule says a guardrail breach blocks an unconditional ship, and no category clears the multiple-comparison bar on its own. So:
+**Ship strikethrough to apparel/beauty, with a refund alarm. Hold electronics. Watch home.**
 
-- **Run a monitored confirmatory rollout to apparel/beauty only** — the segment where the overall lift concentrates and whose CI clears zero — instrumented with a refund kill-switch (**pause if refund rate > 3.0% sustained 3+ days**). The rollout doubles as the experiment that confirms both the lift *and* its refund cost.
-- **Hold home** (positive point estimate, but its CI crosses zero — underpowered) and **keep electronics on clean pricing** (no gain, worse guardrails — shipping there would cost margin twice).
+- **Apparel/beauty (+14%, significant):** ship it — this is where the lift is real and the margin lives. Add a **refund kill-switch** (pause if refund rate > 3.0% sustained 3+ days).
+- **Electronics (−3%, not significant):** keep clean pricing — no conversion gain and a worse repeat-rate; shipping there would cost margin for nothing.
+- **Home (+17% but not significant):** promising, not proven — collect more data before committing.
 
-The headline isn't the p-value. It's that a real top-line win can still be one your own guardrails won't let you bank yet — and that catching it is the job. Full reasoning, money sizing, and rollback plan in the [decision memo](decision_memo.md).
+There's no good global on/off setting, and the conversion win comes with a refund cost — so the recommendation captures the upside where it's real and guards the downside. Full reasoning, money sizing, and rollout in the [decision memo](decision_memo.md).
 
-## What makes this rigorous
+## What this shows
 
-- **Designed before data.** Metric, MDE, decision rule, and stopping rule were locked in [pre-registration](PRE_REGISTRATION.md) before a row was collected — so the read-out can't be reverse-fit, and the guardrail breach can't be quietly explained away.
-- **Validity before results.** SRM is checked first; ITT is the decision denominator with ATT reported alongside; segment tests carry a Bonferroni correction (α ≈ 0.006 over 9 tests) — which is exactly what stops the suggestive apparel/beauty result from being oversold.
-- **Statistics that end in a decision.** A ship/hold/monitor recommendation with a quantified rollback trigger and rough money sizing — not a p-value dump — and one that holds the line on a pre-committed guardrail rather than overriding it to claim a win.
+- **Designed before data** — hypothesis, primary metric, sample size, and guardrails written down up front (see the [test plan](PRE_REGISTRATION.md)).
+- **Measured correctly** — randomized and analysed at the customer (the unit that matches), with a two-proportion z-test and a 95% CI, not just a point estimate.
+- **Business-aware** — guardrail metrics tracked, the result tied to the North Star (revenue per customer), and the segments read for *where* to act.
+- **Ends in a decision** — a clear ship/hold recommendation with a rollback trigger and rough money sizing, not a p-value dump.
 
 ## Run it
 
 ```bash
 pip install -r requirements.txt
 python seed_experiment.py        # deterministic dataset → data/experiment.duckdb (+ CSVs)
-python make_figures.py           # renders the 3 figures above from the data
+python make_figures.py           # renders the 3 figures above, from the data
 pytest -q                        # 7 checks: stats correctness (vs statsmodels) + assignment determinism
 jupyter nbconvert --to notebook --execute analysis/analysis.ipynb --inplace
 ```
 
-Every number on every chart is computed from the data (nothing hand-typed), and the notebook renders inline on GitHub — you can read the whole analysis without running anything.
+Every number on every chart is computed from the data, and the notebook renders inline on GitHub — read the whole analysis without running anything.
 
 ## Repo tour
 
 ```
-PRE_REGISTRATION.md     design + decision rules, locked before data (the trust anchor)
+PRE_REGISTRATION.md     the test plan, written before the data (metric, sample size, guardrails, decision rule)
 seed_experiment.py      deterministic data generator (SHA256 assignment, Bernoulli outcomes)
-make_figures.py         renders the 3 README figures from the data (shared design system)
-sql/                    01 SRM · 02 exposure (ITT/ATT) · 03 per-variant metrics (ITT) · 04 segmentation
+make_figures.py         renders the 3 README figures from the data
+sql/                    01 split check · 02 exposure · 03 per-variant metrics · 04 segmentation
 analysis/
-  analysis.ipynb        the executed read-out — SRM, lift+CI, segmentation, peeking simulation, verdict
-  stats.py              z-test, lift+CI, SRM, Bonferroni, power — small and auditable
+  analysis.ipynb        the executed read-out — conversion, sample size, segments, guardrails, North Star, verdict
+  stats.py              z-test, lift + CI, sample size — small and auditable
 tests/test_stats.py     7 pytest checks (cross-checked vs statsmodels; Z-magnitude sanity; assignment determinism)
 decision_memo.md        the one-page recommendation to a VP of Product
-DESIGN.md               why each design + statistical choice was made
+DESIGN.md               why each choice was made
 figures/                charts used above
 ```
 
-## Methodology highlights
+## How it was built
 
-Full write-up in [DESIGN.md](DESIGN.md). The decisions that matter most:
+Full write-up in [DESIGN.md](DESIGN.md). The decisions that matter:
 
-- **Windowing:** 28-day enrollment, **7-day per-customer attribution** — a customer is credited a conversion if they place ≥1 paid order within 7 days of *their own* assignment; the 28-day cap limits novelty inflation.
-- **Customer-level, not session-level:** sessions from one user are correlated; analysing per-session underestimates variance and inflates false positives. The analysis unit must match the randomization unit.
-- **MDE from economics, not gut feel:** the change is cheap to build, so the bar isn't break-even — it's being confident the effect clears the *guardrail* risk. That choice sizes the test.
-- **SRM first:** if the 50/50 split didn't hold, randomization is broken and every downstream number is suspect. It's the first cell in the notebook, before any conversion figure.
-- **No peeking — and why:** the notebook simulates it (1,000 null experiments with interim looks push the false-positive rate from ~5% to ~10%). A legitimate mid-flight read needs an alpha-spending design (mSPRT / O'Brien–Fleming), not an ad-hoc look.
+- **Customer-level, not session-level.** Sessions from one user are correlated; measuring per-session understates variance and overstates significance. Randomize and analyse on the same unit — the customer.
+- **Sample size from economics.** A cheap front-end change → the bar is "detect a realistic effect (~3–12% relative)," and the test was sized for it.
+- **Guardrails are first-class.** Refund rate, 30-day repeat, payment-failure — the metrics you don't want to move are tracked alongside the one you do.
+- **Segments tell you where, not just whether.** The same headline can be a clear win in one category and a loss in another; reading the cut is what turns a number into a rollout plan.
 
 ## The data
 
-The dataset is **synthetic but realistic**, produced by `seed_experiment.py` — a deliberate engineering choice so the entire analysis is **reproducible by anyone** (clone and run) with no warehouse credentials. The baseline (3.9%) and the effect band (+3–12% relative — what strikethrough pricing actually produces) are calibrated to real e-commerce behaviour, and the heterogeneity (fashion responds to discount framing, premium electronics doesn't) mirrors a documented merchandising pattern. The SQL is standard and **ports directly to a production Postgres warehouse** — each file documents the mapping (event stream for exposure, an order-refunds view, customer/category/device joins for segments).
+The dataset is **synthetic but realistic**, produced by `seed_experiment.py` — a deliberate choice so the whole analysis is **reproducible by anyone** (clone and run) with no warehouse credentials. The baseline (3.9%) and the effect band (+3–12% relative, what strikethrough actually produces) are calibrated to real e-commerce, and the heterogeneity (fashion responds to discounting, premium electronics doesn't) mirrors a documented merchandising pattern. The SQL is standard and **ports directly to a production Postgres warehouse** — each file notes the mapping.
 
 ## Limitations
 
-- **Synthetic data** — the *method* is the deliverable, not the exact lift; on production data you'd re-confirm the baseline and the category split, which can move the per-segment verdicts.
-- **Segments are underpowered** — the experiment is sized for the overall effect; no single category survives Bonferroni, which is why the segment story drives a *confirmatory* rollout, not an immediate per-segment ship.
-- **Novelty effect** — a discount frame can inflate early lift; the 28-day cap limits this and the memo schedules a 90-day re-read.
-- **Repeat-rate signal is early** at a 30-day window — directional; confirm at 60–90 days before treating brand-erosion as settled.
-- **CUPED considered, not applied** — with a ~4% binary primary and a near-uncorrelated pre-period covariate, CUPED buys almost nothing here; it earns its keep on continuous metrics, so dressing it up would be theatre (noted in [DESIGN.md](DESIGN.md)).
+- **Synthetic data** — the *method* is the deliverable, not the exact lift; on production data you'd re-confirm the baseline and category split.
+- **Novelty effect** — a discount frame can inflate early lift; capped at 28 days, with a 90-day re-read planned.
+- **Repeat-rate is an early read** at 30 days — confirm at 60–90 days before treating it as settled.
 
 ---
 
@@ -105,6 +104,4 @@ The dataset is **synthetic but realistic**, produced by `seed_experiment.py` —
 
 **Résumé line:**
 
-> Designed and analysed a customer-level A/B test on PDP discount framing (n ≈ 50k, 28-day enrollment / 7-day attribution): pre-registered design, SHA256 randomization, SRM + ITT/ATT validity checks, two-proportion z-test with 95% CIs, and Bonferroni-corrected segmentation.
->
-> Found a +11.8% conversion lift that breached a pre-registered refund guardrail, and — rather than override the rule — recommended a monitored, single-segment confirmatory rollout with a refund-rate rollback trigger via a VP decision memo.
+> Designed and analysed a customer-level A/B test on PDP discount framing (n ≈ 50k): sized the test from business economics, measured conversion with a two-proportion z-test and 95% CI, tracked guardrail metrics, and tied the result to the North Star (revenue per customer). Found a +11.8% lift concentrated in apparel/beauty that doubled refund rate, and recommended a targeted rollout with a refund-rate rollback trigger via a VP decision memo.

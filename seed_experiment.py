@@ -59,7 +59,7 @@ REFUND_RATE = {"control": 0.012, "treatment": 0.016}      # deal-seekers return 
 REPEAT_30D = {"control": 0.22, "treatment": 0.20}         # brand-erosion proxy
 AOV = {"control": 2650.0, "treatment": 2480.0}            # discount framing → slightly smaller baskets (INR)
 PMT_FAILURE_RATE = 0.018                                  # ~flat across arms (sanity guardrail)
-EXPOSURE_RATE = 0.92                                      # assigned-but-not-exposed → ITT vs ATT
+EXPOSURE_RATE = 0.92                                      # ~8% assigned never see the page
 
 
 def assign_variant(cid: int) -> int:
@@ -76,7 +76,7 @@ def main() -> None:
     segment = rng.choice(seg_names, size=n, p=[SEGMENTS[s][0] for s in seg_names])
     device = rng.choice(list(DEVICES), size=n, p=list(DEVICES.values()))
     country = rng.choice(list(COUNTRIES), size=n, p=list(COUNTRIES.values()))
-    prior_orders = rng.poisson(1.3, size=n)                 # pre-period covariate (CUPED-ready)
+    prior_orders = rng.poisson(1.3, size=n)                 # orders in the prior window (context)
 
     variant = np.array([assign_variant(c) for c in cid])
     variant_name = np.where(variant == 0, "control", "treatment")
@@ -91,7 +91,7 @@ def main() -> None:
     lift = np.array([SEGMENTS[s][2] for s in segment])
     dmult = np.array([DEVICE_MULT[d] for d in device])
     p_convert = base * np.where(variant == 1, 1 + lift, 1.0) * dmult
-    # only exposed customers can be influenced; unexposed revert to base (ITT dilutes)
+    # only exposed customers can be influenced; unexposed revert to base rate
     p_convert = np.where(exposed, p_convert, base * dmult)
     converted = rng.random(n) < p_convert
 

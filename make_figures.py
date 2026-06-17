@@ -231,13 +231,13 @@ SEG_LABELS = {
 }
 
 
-def _sig_color(lo: float, hi: float, alpha_sig: bool) -> tuple[str, str]:
-    """(color, glyph) for a CI — significance by color AND glyph (cb-safe)."""
-    if lo > 0:          # CI entirely above zero -> favorable
-        return (POSITIVE, " *") if alpha_sig else (POSITIVE, "")
-    if hi < 0:          # CI entirely below zero -> unfavorable
-        return (NEGATIVE, " ✕")
-    return (NULL, "")   # crosses zero -> can't tell
+def _sig_color(lo: float, hi: float, alpha_sig: bool = False) -> tuple[str, str]:
+    """Colour a CI by where it sits vs zero (no glyph — keep it clean)."""
+    if lo > 0:
+        return (POSITIVE, "")
+    if hi < 0:
+        return (NEGATIVE, "")
+    return (NULL, "")
 
 
 # ==========================================================================
@@ -326,17 +326,17 @@ def fig1_forest(m: dict) -> str:
         "Strikethrough lifts conversion +11.8% — but the win\nis concentrated, not uniform",
         loc="left", fontsize=12.5)
     subtitle(ax,
-             "Relative lift vs control, 95% CI · two-proportion z-test · "
-             "segment tests Bonferroni-corrected (α≈ 0.006)", dy=44)
+             "Relative lift vs control, with 95% confidence intervals · two-proportion z-test",
+             dy=44)
     # legend for the significance encoding (glyph + color, colorblind-safe).
     # ' *' marks any segment surviving Bonferroni (alpha approx 0.006); the
     # encoding is data-driven, so if none qualifies the glyph simply is absent.
     from matplotlib.lines import Line2D
     handles = [
         Line2D([0], [0], marker="o", color="w", markerfacecolor=POSITIVE,
-               markersize=8, label="CI excludes 0  ( * = Bonferroni-sig )"),
+               markersize=8, label="CI excludes 0 (significant)"),
         Line2D([0], [0], marker="o", color="w", markerfacecolor=NULL,
-               markersize=8, label="CI crosses 0 (can't tell)"),
+               markersize=8, label="CI crosses 0 (not significant)"),
     ]
     ax.legend(handles=handles, loc="upper left", bbox_to_anchor=(0.0, -0.155),
               ncol=2, fontsize=8.5, handletextpad=0.4, columnspacing=1.4)

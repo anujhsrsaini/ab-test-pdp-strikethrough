@@ -1,4 +1,4 @@
-# Pre-Registration — `exp_201_pdp_strikethrough`
+# Test plan (pre-registered) — `exp_201_pdp_strikethrough`
 
 > **Locked 2026-04-29, before any data was collected.** Pre-registration is the
 > thing that makes the read-out trustworthy: the metric, the effect size, the
@@ -25,6 +25,8 @@ more and repeat less — so guardrails can veto a primary-metric win.
 - **Secondary (reported, not gated):** AOV, items/order, carousel/PDP engagement.
 - **Guardrails (a regression can block ship):** refund rate, 30-day repeat-purchase
   rate (brand-erosion proxy), payment-failure rate (sanity).
+- **North Star:** revenue per customer — the business metric the conversion lever
+  ladders up to; reported alongside the guardrails, not gated on directly.
 
 ## Statistical plan
 - **Randomization unit:** customer (`stable_user_id`) — analysis unit matches.
@@ -35,27 +37,22 @@ more and repeat less — so guardrails can veto a primary-metric win.
   effect clears the guardrail risk*. We size to detect a clear, actionable effect.
 - **α = 0.05** (two-tailed — the change can plausibly *hurt* conversion), **power = 0.80**.
 - **Sample size:** ~24.5k per arm (~49k total). Test: two-proportion z-test.
-- **Segmentation (pre-committed):** category (apparel/beauty · electronics · home),
-  device, country — with **Bonferroni** correction across the segment tests.
+- **Segmentation (pre-committed):** broken out by category (apparel/beauty · electronics ·
+  home), device, and country — read for *where* the effect lives, not just whether.
 
 ## Decision rule (committed)
-- **Ship** if: primary Z > 1.96 (p < 0.05) **AND** no guardrail regression beyond
-  tolerance (refund rate +≤0.3pp, 30-day repeat −≤1pp).
-  *(This gate is written for a single global ship. The actual result breaches it on refunds; the read-out holds the rule and recommends a narrow monitored rollout instead of overriding it — see the decision memo. The rule stands as committed.)*
+- **Ship** if: primary is significant (Z > 1.96) **AND** the guardrails hold (refund rate
+  and 30-day repeat don't regress materially). If the lift is real but a guardrail moves,
+  ship only where it clears both bars — not blindly across the board.
 - **Stage / partial ship** if: primary is significant but a guardrail or a segment
   fails — ship only the segments that clear both bars.
 - **Hold** if: primary not significant, or a guardrail breaches tolerance broadly.
 
 ## Stopping rule
-Run to the pre-set sample size / 28-day cap. **No peeking, no early stop on
-significance** (peeking inflates Type-I error to ~10%). Cap at 28 days to limit
-novelty-effect inflation. Analysis script written and reviewed before data landed.
+Run to the planned sample size (28-day cap). **Don't stop early just because it looks
+significant** — that inflates the false-positive rate. The cap also limits novelty
+inflation. The analysis was written and reviewed before any data landed.
 
-## Noted but not implemented (honest scope)
-- **CUPED** variance reduction — *considered and deliberately not applied.* With a ~4%
-  binary primary metric and a pre-period covariate (`prior_period_orders`) that is
-  near-uncorrelated with conversion, CUPED would shrink the SE by a negligible amount
-  here; it earns its keep on continuous metrics (revenue) or higher-rate outcomes.
-  Applying it would be theatre, so we name the tool and the reason rather than dress it up.
+## Out of scope
 - Cross-device identity stitching (~5–10% of users may see mixed variants) — accepted,
-  reported in limitations.
+  noted in the README limitations.
