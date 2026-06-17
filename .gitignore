@@ -1,0 +1,7 @@
+# regenerable from seed_experiment.py (CSVs are committed so the repo is browsable)
+data/*.duckdb
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+*.pyc
+.DS_Store
